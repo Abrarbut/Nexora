@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ───────────────────────────────────────────────
+
+enum Role {
+  CUSTOMER
+  VENDOR
+  ADMIN
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  OUT_OF_STOCK
+  DELISTED
+}
+
+enum SubOrderStatus {
+  PLACED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PayoutStatus {
+  REQUESTED
+  APPROVED
+  PAID
+  REJECTED
+}
+
+// ─── MODELS ──────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(CUSTOMER)
+
+  vendorProfile VendorProfile?
+  orders        Order[]
+  reviews       Review[]
+  cart          Cart?
+  wishlist      Wishlist?
+  accounts      Account[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model VendorProfile {
+  id              String       @id @default(cuid())
+  userId          String       @unique
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeName       String
+  slug            String       @unique
+  description     String?
+  logo            String?
+  banner          String?
+  status          VendorStatus @default(PENDING)
+  commissionRate  Float        @default(10)
+  stripeAccountId String?
+
+  products  Product[]
+  subOrders SubOrder[]
+  payouts   Payout[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String        @id @default(cuid())
+  vendorId    String
+  vendor      VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  title       String
+  description String        @db.Text
+  price       Float
+  stock       Int           @default(0)
+  images      String[]
+  categoryId  String
+  category    Category      @relation(fields: [categoryId], references: [id])
+  status      ProductStatus @default(DRAFT)
+  rating      Float         @default(0)
+
+  reviews    Review[]
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([vendorId])
+  @@index([categoryId])
+  @@index([status])
+}
+
+model Category {
+  id             String    @id @default(cuid())
+  name           String
+  slug           String    @unique
+  commissionRate Float?
+  products       Product[]
+}
+
+model Order {
+  id                    String     @id @default(cuid())
+  customerId            String
+  customer              User       @relation(fields: [customerId], references: [id])
+  subOrders             SubOrder[]
+  total                 Float
+  shippingAddress       Json
+  stripePaymentIntentId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([customerId])
+}
+
+model SubOrder {
+  id             String         @id @default(cuid())
+  orderId        String
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  vendorId       String
+  vendor         VendorProfile  @relation(fields: [vendorId], references: [id])
+  items          OrderItem[]
+  status         SubOrderStatus @default(PLACED)
+  subtotal       Float
+  vendorEarnings Float
+  platformFee    Float
+
+  createdAt DateTime @default(now())
+
+  @@index([vendorId])
+  @@index([orderId])
+}
+
+model OrderItem {
+  id              String   @id @default(cuid())
+  subOrderId      String
+  subOrder        SubOrder @relation(fields: [subOrderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+  quantity        Int
+  priceAtPurchase Float
+}
+
+model Review {
+  id             String  @id @default(cuid())
+  userId         String
+  user           User    @relation(fields: [userId], references: [id])
+  productId      String
+  product        Product @relation(fields: [productId], references: [id])
+  vendorId       String
+  rating         Int
+  comment        String  @db.Text
+  sentiment      String?
+  sentimentScore Float?
+  vendorReply    String? @db.Text
+
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([vendorId])
+}
+
+model Cart {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  Json   @default("[]")
+}
+
+model Wishlist {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productIds String[]
+}
+
+model Payout {
+  id               String       @id @default(cuid())
+  vendorId         String
+  vendor           VendorProfile @relation(fields: [vendorId], references: [id])
+  amount           Float
+  status           PayoutStatus @default(REQUESTED)
+  stripeTransferId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([vendorId])
+}
