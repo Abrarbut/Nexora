@@ -51,7 +51,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Quick Links */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <Link href="/admin/vendors" className="rounded-xl border border-slate-700/50 bg-slate-800/50 p-5 transition hover:border-purple-500/50">
           <Store className="h-8 w-8 text-purple-400" />
           <h3 className="mt-3 font-semibold">Manage Vendors</h3>
@@ -61,6 +61,11 @@ export default async function AdminDashboard() {
               {pendingVendors} pending
             </span>
           )}
+        </Link>
+        <Link href="/admin/products" className="rounded-xl border border-slate-700/50 bg-slate-800/50 p-5 transition hover:border-cyan-500/50">
+          <Package className="h-8 w-8 text-cyan-400" />
+          <h3 className="mt-3 font-semibold">Manage Products</h3>
+          <p className="mt-1 text-sm text-slate-400">Approve, delist, or moderate product listings</p>
         </Link>
         <Link href="/admin/orders" className="rounded-xl border border-slate-700/50 bg-slate-800/50 p-5 transition hover:border-blue-500/50">
           <ShoppingCart className="h-8 w-8 text-blue-400" />

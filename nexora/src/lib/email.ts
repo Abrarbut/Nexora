@@ -1,6 +1,13 @@
 import { Resend } from "resend";
 
-export const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("RESEND_API_KEY is not set — emails will be skipped");
+    return null;
+  }
+  return new Resend(apiKey);
+}
 
 const FROM_EMAIL = "Nexora <onboarding@resend.dev>";
 
@@ -8,6 +15,9 @@ const FROM_EMAIL = "Nexora <onboarding@resend.dev>";
  * Send vendor approval email
  */
 export async function sendVendorApprovedEmail(email: string, storeName: string) {
+  const resend = getResend();
+  if (!resend) return;
+
   try {
     await resend.emails.send({
       from: FROM_EMAIL,
@@ -50,6 +60,9 @@ export async function sendVendorApprovedEmail(email: string, storeName: string) 
  * Send vendor suspension/rejection email
  */
 export async function sendVendorSuspendedEmail(email: string, storeName: string) {
+  const resend = getResend();
+  if (!resend) return;
+
   try {
     await resend.emails.send({
       from: FROM_EMAIL,

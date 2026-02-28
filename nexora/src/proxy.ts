@@ -7,9 +7,9 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes — always accessible
-  const publicRoutes = ["/", "/login", "/register", "/vendor/apply"];
+  const publicRoutes = ["/", "/login", "/register", "/vendor/apply", "/products", "/vendors", "/cart", "/checkout"];
   const isPublicRoute = publicRoutes.some(
-    (route) => pathname === route || pathname.startsWith("/api/auth")
+    (route) => pathname === route || pathname.startsWith(route + "/") || pathname.startsWith("/api/auth") || pathname.startsWith("/api/products") || pathname.startsWith("/api/vendors") || pathname.startsWith("/api/categories")
   );
   if (isPublicRoute) return NextResponse.next();
 

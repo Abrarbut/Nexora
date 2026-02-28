@@ -123,6 +123,52 @@ export default async function ProductsPage({ searchParams }: Props) {
               ))}
             </div>
           </div>
+
+          {/* Price Range */}
+          <div className="mt-4 rounded-xl border border-slate-700/50 bg-slate-800/50 p-4">
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Price Range</h3>
+            <form action="/products" method="GET" className="space-y-3">
+              {/* Preserve existing query params */}
+              {params.q && <input type="hidden" name="q" value={params.q} />}
+              {params.category && <input type="hidden" name="category" value={params.category} />}
+              {params.sort && <input type="hidden" name="sort" value={params.sort} />}
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  name="minPrice"
+                  placeholder="Min"
+                  defaultValue={params.minPrice || ""}
+                  min="0"
+                  step="0.01"
+                  className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
+                />
+                <span className="text-slate-500">–</span>
+                <input
+                  type="number"
+                  name="maxPrice"
+                  placeholder="Max"
+                  defaultValue={params.maxPrice || ""}
+                  min="0"
+                  step="0.01"
+                  className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-slate-700 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-600"
+              >
+                Apply
+              </button>
+              {(params.minPrice || params.maxPrice) && (
+                <Link
+                  href={buildUrl({ minPrice: undefined, maxPrice: undefined, page: undefined })}
+                  className="block text-center text-xs text-blue-400 hover:text-blue-300"
+                >
+                  Clear price filter
+                </Link>
+              )}
+            </form>
+          </div>
         </aside>
 
         {/* Product grid */}

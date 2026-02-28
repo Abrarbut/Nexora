@@ -32,7 +32,7 @@ export async function GET(
       },
     });
 
-    if (!product) {
+    if (!product || product.status !== "ACTIVE") {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 

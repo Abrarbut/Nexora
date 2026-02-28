@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth-helpers";
+import { sendVendorApprovedEmail, sendVendorSuspendedEmail } from "@/lib/email";
 
 // GET /api/admin/vendors — list all vendor applications
 export async function GET(request: NextRequest) {
@@ -67,6 +68,13 @@ export async function PATCH(request: NextRequest) {
         where: { id: vendor.userId },
         data: { role: "VENDOR" },
       });
+      // Send approval email
+      await sendVendorApprovedEmail(vendor.user.email, vendor.storeName);
+    }
+
+    // If suspended, send suspension email
+    if (status === "SUSPENDED") {
+      await sendVendorSuspendedEmail(vendor.user.email, vendor.storeName);
     }
 
     return NextResponse.json({ data: vendor, message: `Vendor ${status.toLowerCase()}` });

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import AddToCartButton from "./AddToCartButton";
 import ReviewSection from "./ReviewSection";
+import ImageGallery from "./ImageGallery";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -51,31 +52,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Image gallery */}
-        <div className="space-y-4">
-          <div className="relative aspect-square overflow-hidden rounded-xl border border-slate-700/50 bg-slate-800/50">
-            {product.images[0] ? (
-              <Image
-                src={product.images[0]}
-                alt={product.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                priority
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-6xl text-slate-600">📦</div>
-            )}
-          </div>
-          {product.images.length > 1 && (
-            <div className="grid grid-cols-4 gap-2">
-              {product.images.slice(1, 5).map((img, i) => (
-                <div key={i} className="relative aspect-square overflow-hidden rounded-lg border border-slate-700/50">
-                  <Image src={img} alt={`${product.title} ${i + 2}`} fill className="object-cover" sizes="120px" />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <ImageGallery images={product.images} title={product.title} />
 
         {/* Product info */}
         <div>
@@ -132,7 +109,7 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
 
           {/* Vendor info */}
-          <div className="mt-6 rounded-xl border border-slate-700/50 bg-slate-800/50 p-4">
+          <Link href={`/vendors/${product.vendor.slug}`} className="mt-6 block rounded-xl border border-slate-700/50 bg-slate-800/50 p-4 transition hover:border-blue-500/50">
             <p className="text-xs uppercase tracking-wide text-slate-500">Sold by</p>
             <div className="mt-2 flex items-center gap-3">
               {product.vendor.logo ? (
@@ -155,7 +132,7 @@ export default async function ProductDetailPage({ params }: Props) {
                 )}
               </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
 

@@ -1,6 +1,20 @@
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-02-25.clover",
-  typescript: true,
-});
+function createStripeClient() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) {
+    // Return a proxy that throws meaningful errors at runtime instead of build time
+    return new Proxy({} as Stripe, {
+      get(_, prop) {
+        if (prop === "then") return undefined;
+        throw new Error("STRIPE_SECRET_KEY is not set");
+      },
+    });
+  }
+  return new Stripe(key, {
+    apiVersion: "2025-12-18.acacia" as Stripe.LatestApiVersion,
+    typescript: true,
+  });
+}
+
+export const stripe = createStripeClient();

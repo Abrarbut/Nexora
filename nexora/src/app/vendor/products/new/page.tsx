@@ -15,10 +15,9 @@ export default function NewProductPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
-    name: "",
+    title: "",
     description: "",
     price: "",
-    compareAtPrice: "",
     stock: "",
     categoryId: "",
     images: "",
@@ -50,10 +49,9 @@ export default function NewProductPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name,
+          title: form.title,
           description: form.description,
           price: parseFloat(form.price),
-          compareAtPrice: form.compareAtPrice ? parseFloat(form.compareAtPrice) : undefined,
           stock: parseInt(form.stock) || 0,
           categoryId: form.categoryId || undefined,
           images,
@@ -78,10 +76,10 @@ export default function NewProductPage() {
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-300">Product Name *</label>
+          <label className="mb-1 block text-sm font-medium text-slate-300">Product Title *</label>
           <input
-            name="name"
-            value={form.name}
+            name="title"
+            value={form.title}
             onChange={handleChange}
             required
             placeholder="e.g. Wireless Bluetooth Headphones"
@@ -117,22 +115,6 @@ export default function NewProductPage() {
               className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
             />
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-300">Compare At Price ($)</label>
-            <input
-              name="compareAtPrice"
-              type="number"
-              step="0.01"
-              min="0"
-              value={form.compareAtPrice}
-              onChange={handleChange}
-              placeholder="49.99"
-              className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-300">Stock Quantity *</label>
             <input

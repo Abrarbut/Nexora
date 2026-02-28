@@ -19,14 +19,13 @@ export default function EditProductPage() {
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
-    name: "",
+    title: "",
     description: "",
     price: "",
-    compareAtPrice: "",
     stock: "",
     categoryId: "",
     images: "",
-    isActive: true,
+    status: "ACTIVE" as string,
   });
 
   useEffect(() => {
@@ -38,14 +37,13 @@ export default function EditProductPage() {
       if (prodData.data) {
         const p = prodData.data;
         setForm({
-          name: p.name,
+          title: p.title || "",
           description: p.description || "",
           price: String(p.price),
-          compareAtPrice: p.compareAtPrice ? String(p.compareAtPrice) : "",
           stock: String(p.stock),
           categoryId: p.categoryId || "",
           images: (p.images || []).join(", "),
-          isActive: p.isActive,
+          status: p.status || "ACTIVE",
         });
       }
       setFetching(false);
@@ -67,14 +65,13 @@ export default function EditProductPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name,
+          title: form.title,
           description: form.description,
           price: parseFloat(form.price),
-          compareAtPrice: form.compareAtPrice ? parseFloat(form.compareAtPrice) : undefined,
           stock: parseInt(form.stock) || 0,
           categoryId: form.categoryId || undefined,
           images,
-          isActive: form.isActive,
+          status: form.status,
         }),
       });
       const data = await res.json();
@@ -101,8 +98,8 @@ export default function EditProductPage() {
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-300">Product Name *</label>
-          <input name="name" value={form.name} onChange={handleChange} required className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm text-white outline-none focus:border-blue-500" />
+          <label className="mb-1 block text-sm font-medium text-slate-300">Product Title *</label>
+          <input name="title" value={form.title} onChange={handleChange} required className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm text-white outline-none focus:border-blue-500" />
         </div>
 
         <div>
@@ -115,13 +112,6 @@ export default function EditProductPage() {
             <label className="mb-1 block text-sm font-medium text-slate-300">Price ($) *</label>
             <input name="price" type="number" step="0.01" min="0" value={form.price} onChange={handleChange} required className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm text-white outline-none focus:border-blue-500" />
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-300">Compare At Price ($)</label>
-            <input name="compareAtPrice" type="number" step="0.01" min="0" value={form.compareAtPrice} onChange={handleChange} className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm text-white outline-none focus:border-blue-500" />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-300">Stock *</label>
             <input name="stock" type="number" min="0" value={form.stock} onChange={handleChange} required className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm text-white outline-none focus:border-blue-500" />
@@ -143,15 +133,17 @@ export default function EditProductPage() {
           <p className="mt-1 text-xs text-slate-500">Comma-separated URLs</p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            id="isActive"
-            checked={form.isActive}
-            onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-            className="h-4 w-4 rounded border-slate-700 bg-slate-800"
-          />
-          <label htmlFor="isActive" className="text-sm text-slate-300">Product is active and visible</label>
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-300">Status</label>
+          <select
+            name="status"
+            value={form.status}
+            onChange={handleChange}
+            className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+          >
+            <option value="ACTIVE">Active</option>
+            <option value="DRAFT">Draft</option>
+          </select>
         </div>
 
         {error && (
