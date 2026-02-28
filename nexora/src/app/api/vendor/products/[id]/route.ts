@@ -3,6 +3,33 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth-helpers";
 import { productSchema } from "@/lib/validations";
 
+// GET /api/vendor/products/[id] — get a single vendor product (any status)
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { session, error } = await requireRole(["VENDOR"]);
+  if (error) return error;
+
+  try {
+    const { id } = await params;
+
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { category: true },
+    });
+
+    if (!product || product.vendorId !== session!.user.vendorProfileId) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ data: product });
+  } catch (err) {
+    console.error("Get vendor product error:", err);
+    return NextResponse.json({ error: "Failed to fetch product" }, { status: 500 });
+  }
+}
+
 // PUT /api/vendor/products/[id] — update a product
 export async function PUT(
   request: NextRequest,

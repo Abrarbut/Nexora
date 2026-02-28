@@ -76,6 +76,24 @@ export default async function ProductsPage({ searchParams }: Props) {
           {params.q ? `Results for "${params.q}"` : params.category ? categories.find(c => c.slug === params.category)?.name || "Products" : "All Products"}
         </h1>
         <p className="mt-1 text-slate-400">{total} product{total !== 1 ? "s" : ""} found</p>
+
+        {/* Search bar */}
+        <form action="/products" method="GET" className="mt-4">
+          {params.category && <input type="hidden" name="category" value={params.category} />}
+          {params.sort && <input type="hidden" name="sort" value={params.sort} />}
+          {params.minPrice && <input type="hidden" name="minPrice" value={params.minPrice} />}
+          {params.maxPrice && <input type="hidden" name="maxPrice" value={params.maxPrice} />}
+          <div className="relative max-w-lg">
+            <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="m21 21-4.35-4.35" /></svg>
+            <input
+              type="text"
+              name="q"
+              defaultValue={params.q || ""}
+              placeholder="Search products..."
+              className="w-full rounded-lg border border-slate-700 bg-slate-800/50 py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
+            />
+          </div>
+        </form>
       </div>
 
       <div className="flex flex-col gap-8 lg:flex-row">

@@ -129,11 +129,12 @@ export default function NewProductPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-300">Category</label>
+            <label className="mb-1 block text-sm font-medium text-slate-300">Category *</label>
             <select
               name="categoryId"
               value={form.categoryId}
               onChange={handleChange}
+              required
               className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
             >
               <option value="">Select category</option>
@@ -145,11 +146,12 @@ export default function NewProductPage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-300">Image URLs</label>
+          <label className="mb-1 block text-sm font-medium text-slate-300">Image URLs *</label>
           <input
             name="images"
             value={form.images}
             onChange={handleChange}
+            required
             placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
             className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
           />

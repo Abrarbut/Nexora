@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 
 export default function DeleteProductButton({ productId, productName }: { productId: string; productName: string }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
@@ -15,7 +17,7 @@ export default function DeleteProductButton({ productId, productName }: { produc
         const data = await res.json();
         throw new Error(data.error || "Failed to delete");
       }
-      window.location.reload();
+      router.refresh();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to delete product");
     } finally {
