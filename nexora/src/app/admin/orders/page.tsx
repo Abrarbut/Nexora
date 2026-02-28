@@ -9,11 +9,11 @@ export default async function AdminOrdersPage() {
 
   const orders = await prisma.order.findMany({
     include: {
-      user: { select: { name: true, email: true } },
+      customer: { select: { name: true, email: true } },
       subOrders: {
         include: {
           vendor: { include: { user: { select: { name: true } } } },
-          items: { include: { product: { select: { name: true } } } },
+          items: { include: { product: { select: { title: true } } } },
         },
       },
     },
@@ -42,11 +42,11 @@ export default async function AdminOrdersPage() {
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/50 bg-slate-800 px-6 py-3">
               <div className="flex items-center gap-4 text-sm">
                 <span className="font-mono text-xs text-slate-400">{order.id.slice(0, 12)}...</span>
-                <span className="text-white">{order.user.name || order.user.email}</span>
+                <span className="text-white">{order.customer.name || order.customer.email}</span>
               </div>
               <div className="flex items-center gap-4 text-sm">
                 <span className="text-slate-400">{new Date(order.createdAt).toLocaleDateString()}</span>
-                <span className="text-lg font-bold text-emerald-400">${Number(order.totalAmount).toFixed(2)}</span>
+                <span className="text-lg font-bold text-emerald-400">${Number(order.total).toFixed(2)}</span>
               </div>
             </div>
 
@@ -71,8 +71,8 @@ export default async function AdminOrdersPage() {
                   <div className="mt-2 space-y-1">
                     {sub.items.map((item) => (
                       <div key={item.id} className="flex justify-between text-sm">
-                        <span className="text-slate-300">{item.product.name}</span>
-                        <span className="text-slate-400">{item.quantity} × ${Number(item.price).toFixed(2)}</span>
+                        <span className="text-slate-300">{item.product.title}</span>
+                        <span className="text-slate-400">{item.quantity} × ${Number(item.priceAtPurchase).toFixed(2)}</span>
                       </div>
                     ))}
                   </div>

@@ -47,7 +47,7 @@ export default async function AdminVendorsPage() {
               <div key={vendor.id} className="rounded-xl border border-yellow-500/20 bg-slate-800/50 p-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <h3 className="text-lg font-semibold">{vendor.businessName}</h3>
+                    <h3 className="text-lg font-semibold">{vendor.storeName}</h3>
                     <p className="text-sm text-slate-400">{vendor.user.name} &middot; {vendor.user.email}</p>
                     {vendor.description && (
                       <p className="mt-2 text-sm text-slate-300">{vendor.description}</p>
@@ -83,7 +83,7 @@ export default async function AdminVendorsPage() {
               <tbody className="divide-y divide-slate-800">
                 {approved.map((vendor) => (
                   <tr key={vendor.id}>
-                    <td className="py-3 pr-4 font-medium">{vendor.businessName}</td>
+                    <td className="py-3 pr-4 font-medium">{vendor.storeName}</td>
                     <td className="py-3 pr-4 text-slate-400">{vendor.user.name || vendor.user.email}</td>
                     <td className="py-3 pr-4">{vendor._count.products}</td>
                     <td className="py-3 pr-4 text-slate-400">{new Date(vendor.createdAt).toLocaleDateString()}</td>
@@ -114,7 +114,7 @@ export default async function AdminVendorsPage() {
               <tbody className="divide-y divide-slate-800">
                 {suspended.map((vendor) => (
                   <tr key={vendor.id}>
-                    <td className="py-3 pr-4 font-medium">{vendor.businessName}</td>
+                    <td className="py-3 pr-4 font-medium">{vendor.storeName}</td>
                     <td className="py-3 pr-4 text-slate-400">{vendor.user.name || vendor.user.email}</td>
                     <td className="py-3 text-right">
                       <VendorActionButton vendorId={vendor.id} action="APPROVED" label="Reactivate" variant="green" />

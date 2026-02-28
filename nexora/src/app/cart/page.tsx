@@ -41,14 +41,14 @@ export default function CartPage() {
         <div className="space-y-4 lg:col-span-2">
           {items.map((item) => (
             <div
-              key={item.id}
+              key={item.productId}
               className="flex gap-4 rounded-xl border border-slate-700/50 bg-slate-800/50 p-4"
             >
               <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-slate-700">
                 {item.image ? (
                   <Image
                     src={item.image}
-                    alt={item.name}
+                    alt={item.title}
                     fill
                     className="object-cover"
                     sizes="96px"
@@ -62,31 +62,31 @@ export default function CartPage() {
               <div className="flex flex-1 flex-col justify-between">
                 <div>
                   <Link
-                    href={`/products/${item.id}`}
+                    href={`/products/${item.productId}`}
                     className="font-semibold transition hover:text-blue-400"
                   >
-                    {item.name}
+                    {item.title}
                   </Link>
                   <p className="text-lg font-bold text-emerald-400">${item.price.toFixed(2)}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center rounded-lg border border-slate-700 bg-slate-900/50">
                     <button
-                      onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                      onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))}
                       className="px-3 py-1 text-slate-400 transition hover:text-white"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
                     <span className="min-w-[2rem] text-center text-sm font-medium">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                       className="px-3 py-1 text-slate-400 transition hover:text-white"
                     >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
                   <button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem(item.productId)}
                     className="text-red-400 transition hover:text-red-300"
                   >
                     <Trash2 className="h-4 w-4" />

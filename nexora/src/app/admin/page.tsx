@@ -14,11 +14,11 @@ export default async function AdminDashboard() {
     prisma.vendorProfile.count({ where: { status: "PENDING" } }),
     prisma.product.count(),
     prisma.order.count(),
-    prisma.order.aggregate({ _sum: { totalAmount: true } }),
+    prisma.order.aggregate({ _sum: { total: true } }),
   ]);
 
   const recentOrders = await prisma.order.findMany({
-    include: { user: { select: { name: true, email: true } }, subOrders: { select: { status: true } } },
+    include: { customer: { select: { name: true, email: true } }, subOrders: { select: { status: true } } },
     orderBy: { createdAt: "desc" },
     take: 5,
   });
@@ -28,7 +28,7 @@ export default async function AdminDashboard() {
     { label: "Active Vendors", value: vendorCount, icon: <Store className="h-6 w-6" />, color: "text-purple-400 bg-purple-400/10" },
     { label: "Products", value: productCount, icon: <Package className="h-6 w-6" />, color: "text-cyan-400 bg-cyan-400/10" },
     { label: "Total Orders", value: orderCount, icon: <ShoppingCart className="h-6 w-6" />, color: "text-amber-400 bg-amber-400/10" },
-    { label: "Revenue", value: `$${Number(revenue._sum.totalAmount || 0).toFixed(2)}`, icon: <DollarSign className="h-6 w-6" />, color: "text-emerald-400 bg-emerald-400/10" },
+    { label: "Revenue", value: `$${Number(revenue._sum.total || 0).toFixed(2)}`, icon: <DollarSign className="h-6 w-6" />, color: "text-emerald-400 bg-emerald-400/10" },
     { label: "Pending Vendors", value: pendingVendors, icon: <Clock className="h-6 w-6" />, color: "text-yellow-400 bg-yellow-400/10" },
   ];
 
@@ -90,8 +90,8 @@ export default async function AdminDashboard() {
                 {recentOrders.map((order) => (
                   <tr key={order.id}>
                     <td className="py-3 pr-4 font-mono text-xs">{order.id.slice(0, 12)}...</td>
-                    <td className="py-3 pr-4">{order.user.name || order.user.email}</td>
-                    <td className="py-3 pr-4 font-medium text-emerald-400">${Number(order.totalAmount).toFixed(2)}</td>
+                    <td className="py-3 pr-4">{order.customer.name || order.customer.email}</td>
+                    <td className="py-3 pr-4 font-medium text-emerald-400">${Number(order.total).toFixed(2)}</td>
                     <td className="py-3 pr-4">
                       <span className="rounded-full bg-blue-400/10 px-2.5 py-0.5 text-xs font-medium text-blue-400">
                         {order.subOrders[0]?.status || "PENDING"}

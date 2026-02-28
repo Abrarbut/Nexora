@@ -1,4 +1,6 @@
 const EmbeddedPostgres = require('embedded-postgres').default;
+const fs = require('fs');
+const path = require('path');
 
 async function start() {
   const pg = new EmbeddedPostgres({
@@ -9,14 +11,25 @@ async function start() {
     persistent: true,
   });
 
-  console.log('Downloading and starting PostgreSQL...');
-  await pg.initialise();
+  console.log('Starting PostgreSQL...');
+  
+  // Only initialise if not already done
+  const dataFlag = path.join('./pg-data', 'PG_VERSION');
+  if (!fs.existsSync(dataFlag)) {
+    console.log('First run — initializing database cluster...');
+    await pg.initialise();
+  }
+
   await pg.start();
   console.log('PostgreSQL is running on port 5432!');
 
-  // Create the nexora database
-  await pg.createDatabase('nexora');
-  console.log('Database "nexora" created!');
+  // Create the nexora database if it doesn't exist
+  try {
+    await pg.createDatabase('nexora');
+    console.log('Database "nexora" created!');
+  } catch {
+    console.log('Database "nexora" already exists.');
+  }
 
   // Test connection
   const { Client } = require('pg');
@@ -44,6 +57,6 @@ async function start() {
 }
 
 start().catch(async (err) => {
-  console.error('Error:', err.message);
+  console.error('Error:', err?.message || err);
   process.exit(1);
 });

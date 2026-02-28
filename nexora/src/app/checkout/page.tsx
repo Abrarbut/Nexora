@@ -39,7 +39,7 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: items.map((item) => ({
-            productId: item.id,
+            productId: item.productId,
             quantity: item.quantity,
           })),
           shippingAddress: form,
@@ -189,9 +189,9 @@ export default function CheckoutPage() {
           <h2 className="text-lg font-bold">Order Summary</h2>
           <div className="mt-4 space-y-3">
             {items.map((item) => (
-              <div key={item.id} className="flex justify-between text-sm">
+              <div key={item.productId} className="flex justify-between text-sm">
                 <span className="text-slate-300 truncate max-w-[60%]">
-                  {item.name} × {item.quantity}
+                  {item.title} × {item.quantity}
                 </span>
                 <span>${(item.price * item.quantity).toFixed(2)}</span>
               </div>
