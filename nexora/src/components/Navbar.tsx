@@ -49,6 +49,14 @@ export default function Navbar() {
           >
             Products
           </Link>
+          <Link
+            href="/vendors"
+            className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              pathname === "/vendors" ? "bg-slate-800 text-white" : "text-slate-300 hover:text-white"
+            }`}
+          >
+            Vendors
+          </Link>
 
           {/* Cart */}
           <Link

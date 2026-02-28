@@ -17,13 +17,13 @@ export default async function OrdersPage() {
   if (!session?.user) redirect("/auth/signin");
 
   const orders = await prisma.order.findMany({
-    where: { userId: session.user.id },
+    where: { customerId: session.user.id },
     include: {
       subOrders: {
         include: {
           vendor: { include: { user: { select: { name: true } } } },
           items: {
-            include: { product: { select: { name: true, images: true, slug: true } } },
+            include: { product: { select: { title: true, images: true, id: true } } },
           },
         },
       },
@@ -63,7 +63,7 @@ export default async function OrdersPage() {
               </div>
               <div className="flex items-center gap-4 text-sm">
                 <span className="text-slate-400">{new Date(order.createdAt).toLocaleDateString()}</span>
-                <span className="font-bold text-emerald-400">${Number(order.totalAmount).toFixed(2)}</span>
+                <span className="font-bold text-emerald-400">${Number(order.total).toFixed(2)}</span>
               </div>
             </div>
 
@@ -85,13 +85,13 @@ export default async function OrdersPage() {
                       {sub.items.map((item) => (
                         <div key={item.id} className="flex items-center justify-between text-sm">
                           <Link
-                            href={`/products/${item.product.slug}`}
+                            href={`/products/${item.product.id}`}
                             className="flex items-center gap-2 text-slate-300 hover:text-blue-400 transition"
                           >
-                            {item.product.name} <ChevronRight className="h-3 w-3" />
+                            {item.product.title} <ChevronRight className="h-3 w-3" />
                           </Link>
                           <span className="text-slate-400">
-                            {item.quantity} × ${Number(item.price).toFixed(2)}
+                            {item.quantity} × ${Number(item.priceAtPurchase).toFixed(2)}
                           </span>
                         </div>
                       ))}

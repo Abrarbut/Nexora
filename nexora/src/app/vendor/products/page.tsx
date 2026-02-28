@@ -67,7 +67,7 @@ export default async function VendorProductsPage() {
                           <div className="flex h-full items-center justify-center text-slate-500"><Package className="h-4 w-4" /></div>
                         )}
                       </div>
-                      <span className="font-medium">{product.name}</span>
+                      <span className="font-medium">{product.title}</span>
                     </div>
                   </td>
                   <td className="py-3 pr-4 text-slate-400">{product.category?.name || "—"}</td>
@@ -76,8 +76,8 @@ export default async function VendorProductsPage() {
                     <span className={product.stock < 5 ? "text-red-400" : "text-slate-300"}>{product.stock}</span>
                   </td>
                   <td className="py-3 pr-4">
-                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${product.isActive ? "bg-emerald-400/10 text-emerald-400" : "bg-red-400/10 text-red-400"}`}>
-                      {product.isActive ? "Active" : "Inactive"}
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${product.status === "ACTIVE" ? "bg-emerald-400/10 text-emerald-400" : "bg-red-400/10 text-red-400"}`}>
+                      {product.status === "ACTIVE" ? "Active" : product.status}
                     </span>
                   </td>
                   <td className="py-3 text-right">
@@ -88,7 +88,7 @@ export default async function VendorProductsPage() {
                       >
                         <Edit className="h-4 w-4" />
                       </Link>
-                      <DeleteProductButton productId={product.id} productName={product.name} />
+                      <DeleteProductButton productId={product.id} productName={product.title} />
                     </div>
                   </td>
                 </tr>

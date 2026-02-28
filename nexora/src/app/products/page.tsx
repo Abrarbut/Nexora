@@ -46,7 +46,7 @@ export default async function ProductsPage({ searchParams }: Props) {
       where,
       include: {
         category: true,
-        vendor: { select: { id: true, storeName: true, slug: true } },
+        vendor: { select: { id: true, storeName: true, slug: true, description: true, logo: true, banner: true, status: true, commissionRate: true, createdAt: true } },
       },
       orderBy,
       skip: (page - 1) * pageSize,

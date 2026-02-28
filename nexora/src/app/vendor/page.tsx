@@ -2,7 +2,9 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Package, ShoppingCart, DollarSign, TrendingUp, Plus } from "lucide-react";
+import { Package, ShoppingCart, DollarSign, TrendingUp, Plus, CreditCard } from "lucide-react";
+import StripeConnectButton from "@/components/StripeConnectButton";
+import { stripe } from "@/lib/stripe";
 
 export default async function VendorDashboard() {
   const session = await auth();
@@ -23,20 +25,35 @@ export default async function VendorDashboard() {
     );
   }
 
+  // Check Stripe Connect status
+  let stripeStatus = { connected: false, chargesEnabled: false, payoutsEnabled: false };
+  if (vendor.stripeAccountId) {
+    try {
+      const account = await stripe.accounts.retrieve(vendor.stripeAccountId);
+      stripeStatus = {
+        connected: true,
+        chargesEnabled: account.charges_enabled ?? false,
+        payoutsEnabled: account.payouts_enabled ?? false,
+      };
+    } catch {
+      // Account might have been deleted
+    }
+  }
+
   const [productCount, orderCount, earnings] = await Promise.all([
     prisma.product.count({ where: { vendorId: vendor.id } }),
     prisma.subOrder.count({ where: { vendorId: vendor.id } }),
     prisma.subOrder.aggregate({
       where: { vendorId: vendor.id, status: "DELIVERED" },
-      _sum: { amount: true },
+      _sum: { vendorEarnings: true },
     }),
   ]);
 
   const recentOrders = await prisma.subOrder.findMany({
     where: { vendorId: vendor.id },
     include: {
-      items: { include: { product: { select: { name: true } } } },
-      order: { include: { user: { select: { name: true, email: true } } } },
+      items: { include: { product: { select: { title: true } } } },
+      order: { include: { customer: { select: { name: true, email: true } } } },
     },
     orderBy: { createdAt: "desc" },
     take: 5,
@@ -45,8 +62,8 @@ export default async function VendorDashboard() {
   const stats = [
     { label: "Products", value: productCount, icon: <Package className="h-6 w-6" />, color: "text-blue-400 bg-blue-400/10" },
     { label: "Orders", value: orderCount, icon: <ShoppingCart className="h-6 w-6" />, color: "text-purple-400 bg-purple-400/10" },
-    { label: "Revenue", value: `$${Number(earnings._sum.amount || 0).toFixed(2)}`, icon: <DollarSign className="h-6 w-6" />, color: "text-emerald-400 bg-emerald-400/10" },
-    { label: "Avg Order", value: orderCount > 0 ? `$${(Number(earnings._sum.amount || 0) / orderCount).toFixed(2)}` : "$0.00", icon: <TrendingUp className="h-6 w-6" />, color: "text-yellow-400 bg-yellow-400/10" },
+    { label: "Revenue", value: `$${Number(earnings._sum.vendorEarnings || 0).toFixed(2)}`, icon: <DollarSign className="h-6 w-6" />, color: "text-emerald-400 bg-emerald-400/10" },
+    { label: "Avg Order", value: orderCount > 0 ? `$${(Number(earnings._sum.vendorEarnings || 0) / orderCount).toFixed(2)}` : "$0.00", icon: <TrendingUp className="h-6 w-6" />, color: "text-yellow-400 bg-yellow-400/10" },
   ];
 
   return (
@@ -54,7 +71,7 @@ export default async function VendorDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Vendor Dashboard</h1>
-          <p className="text-slate-400">{vendor.businessName}</p>
+          <p className="text-slate-400">{vendor.storeName}</p>
         </div>
         <Link
           href="/vendor/products/new"
@@ -62,6 +79,26 @@ export default async function VendorDashboard() {
         >
           <Plus className="h-4 w-4" /> Add Product
         </Link>
+      </div>
+
+      {/* Stripe Connect Status */}
+      <div className={`mt-8 rounded-xl border p-5 ${stripeStatus.chargesEnabled ? "border-emerald-500/30 bg-emerald-500/5" : "border-yellow-500/30 bg-yellow-500/5"}`}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <CreditCard className={`h-6 w-6 ${stripeStatus.chargesEnabled ? "text-emerald-400" : "text-yellow-400"}`} />
+            <div>
+              <h3 className="font-semibold">
+                {stripeStatus.chargesEnabled ? "Stripe Connected" : "Connect Stripe to Accept Payments"}
+              </h3>
+              <p className="text-sm text-slate-400">
+                {stripeStatus.chargesEnabled
+                  ? "Your account is active and ready to receive payments."
+                  : "Set up Stripe to start receiving customer payments and payouts."}
+              </p>
+            </div>
+          </div>
+          {!stripeStatus.chargesEnabled && <StripeConnectButton />}
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -116,11 +153,11 @@ export default async function VendorDashboard() {
               <tbody className="divide-y divide-slate-800">
                 {recentOrders.map((sub) => (
                   <tr key={sub.id}>
-                    <td className="py-3 pr-4">{sub.order.user.name || sub.order.user.email}</td>
+                    <td className="py-3 pr-4">{sub.order.customer.name || sub.order.customer.email}</td>
                     <td className="py-3 pr-4 text-slate-400">
-                      {sub.items.map((i) => i.product.name).join(", ")}
+                      {sub.items.map((i) => i.product.title).join(", ")}
                     </td>
-                    <td className="py-3 pr-4 font-medium text-emerald-400">${Number(sub.amount).toFixed(2)}</td>
+                    <td className="py-3 pr-4 font-medium text-emerald-400">${Number(sub.subtotal).toFixed(2)}</td>
                     <td className="py-3 pr-4">
                       <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         sub.status === "DELIVERED" ? "bg-emerald-400/10 text-emerald-400" :
